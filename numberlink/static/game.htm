@@ -1,0 +1,557 @@
+<html>
+<meta charset="utf-8">
+<title>Numberlink</title>
+<link href="./graphics.css" rel="stylesheet" type="text/css">
+<script src="./jquery-1.5.2.js"></script>
+<script src="./jquery-history/scripts/jquery.history.min.js"></script>
+<script src="./utils.js"></script>
+<script src="./gui.js"></script>
+<script src="./history.js"></script>
+<script src="./numberlinkBoard.js"></script>
+<script src="./numberlinkEditor.js"></script>
+<link type="text/css" href="css/smoothness/jquery-ui-1.8.12.custom.css" rel="Stylesheet" />	
+<script type="text/javascript" src="js/jquery-ui-1.8.12.custom.min.js"></script>
+<script type="text/javascript" src="timepicker.js"></script>
+<body>
+<div id="main">
+  <div id="board">
+  </div>
+  <div id="editor">
+  </div>
+  <div style="">
+    <div id="attemptInfo">
+      <div id="timer">0:0</div>
+      <input type=button value=MENU onclick="window.history.back()">
+    </div>
+    <div id="menu">
+    </div>
+  </div>
+</div>
+<div id="cover"></div>
+<div id="logo"><img style="padding:10px" src="/s/images/logobig.png"></div>
+<div id="loginInfo"><span id="lblLogin"></span><input type="button" value="X" onclick="doLogout()"></div>
+<div id="halfcover"></div>
+<div id="loginDialog" class="dialog">
+  <ul class="tabs">
+    <li class="tab"><a href="#login">Login</a></li>
+    <li class="tab"><a href="#signin">Rejestracja</a></li>
+  </ul>
+  <div id="loginForm" class='tabcontent'>
+    <form id="logForm">
+    <input style="margin-top:5%" id="user" class="txtbox"></input><br>
+    <input id="pass" class="txtbox" type=password></input><br>
+    <span id="lblBadauth" class="badauth"></span><br>
+    <input type=submit class="btn" value=Zaloguj></input>
+    </form>
+    Albo skorzystaj z: 
+    <a href="/openid/glogin"><img src="http://www.google.com/favicon.ico"></a>
+    <a href="/openid/login"><img src="/openid/logo.gif"></a>
+  </div>
+  <div id="registerForm" class='tabcontent'>
+    <table style="margin:auto">
+      <tr>
+        <td><input id="userReg" class="txtbox"></input></td><td><span id="lblOccupied" class="badauth"></span></td>
+      </tr><tr>
+        <td><input id="passReg" class="txtbox" type=password></input></td><td></td>
+      </tr><tr>
+        <td><input type=button value=Zarejestruj onclick=doRegistration()></input></td><td></td>
+      </tr>
+    </table>
+  </div>
+</div>
+<div id="menuDialog" class="dialog">
+  <ul class="tabs">
+    <li class="tab"><a href="#start">Start</a></li>
+    <li class="tab"><a href="#layouts">Wybierz<br>planszę</a></li>
+    <li class="tab"><a href="#ranking">Przeglądaj<br>ranking</a></li>
+    <li class="tab"><a href="#edit">Stwórz<br>planszę</a></li>
+    <li class="tab"><a href="#challenges">Konkursy</a></li>
+  </ul>
+  <div id="home" class='tabcontent'>
+    <input style="margin-top:20%" type=button class="btn" value="Losuj planszę" onclick='env.setBoardInvoker("#start");getRandom()'>
+    <table id="recentlyPlayed">
+    </table>
+  </div>
+  <div id="layouts" class='tabcontent'>
+    <br>
+    <table style="margin:auto; text-align:center" id="officialLayoutList">
+    </table>
+    
+    <br>
+    <span style="margin:auto; text-align:center">Plansze użytkowników</span><br><br>
+    <table style="margin:auto; text-align:center" id="userLayoutList">
+    </table>
+  </div>
+  <div id="rankings" class='tabcontent'><br>
+    <table style="margin:auto; text-align:center" id="playerRanking">
+    </table>
+  </div>
+  <div id="createLayout" class='tabcontent'><br>
+    Instrukcja: każde kliknięcie na planszy powoduje dodanie kolejnej liczby. <br>Rozmiar można zmieniać przyciskami na dole. Jeśli się pomylisz, musisz wyczyścić planszę (przycisk "Czyść").<br>
+    <input type=button style="margin-top:5%" onclick="env.setBoardInvoker('#edit');$.History.go('editor')" value="Otwórz edytor">
+  </div>
+  <div id="challenges" class='tabcontent'>
+    <div style="display:inline-block;  padding:10">
+    <div style="float:left">
+    <div>
+    Moje konkursy
+    </div>
+    <div id="myChallengesList" style="overflow:auto; border:solid 1px black; margin-right:10">
+    </div>
+    </div>
+    <div style="float:right">
+    <div>
+    Wszystkie konkursy
+    </div>
+    <div id="challengesList" style="overflow:auto; border:solid 1px black">
+    </div>
+    </div>
+    </div><br><br>
+    <input type=button style="clear:both; display:inline-block" onclick="$.History.go('createChallenge')" value="Dodaj konkurs">
+  </div>
+</div>
+<div id="createChallengeDialog" class='dialog'>
+  <form id="newChallengeForm">
+  Nazwa konkursu:<input id="chlName"><br>
+  Wybierz plansze:
+  <div id="chooseLayouts" style="overflow:auto; border:solid 1px black"> 
+    <table> <!-- w tej tabeli jest lista konkursów z checkboksami: name=chlLayouts, value=<id>-->
+    </table>
+  </div>
+  Data rozpoczęcia:<input id="chlStartDate"><br>
+  Data zakończenia:<input id="chlFinishDate"><br>
+  <span id="lblSubimtChallengeError"></span>
+  <input type="button" value="OK" onClick='submitChallenge()'>
+  </form>
+</div>
+<div id="playerInfoDialog" class='dialog'>
+  <span id="lblPlayerName"></span><br>
+  <span id="lblPlayerSolved"></span><br>
+  <span id="lblPlayerRegistered"></span><br>
+  <span id="lblPlayerPosition"></span><br>
+  <input type=button value="Wróć" onclick="history.back()">
+</div>
+<div id="challengeInfoDialog" class='dialog' style="padding:20">
+  <span id="lblChallengeName"></span><br>
+  <span id="lblChallengeStart" style="float:left; margin-right:15"></span>
+  <span id="lblChallengeFinish" style="float:left"></span><br><br><br><br>
+  <div style="float:left">Plansze:
+  <span id="lblChallengeLayouts" ></span>
+  </div>
+  <div style="float:left; margin-left:20">Gracze:
+  <span id="lblChallengePlayers"></span>
+  </div>
+  <span id="lblPlayerPosition"></span><br><br>
+  <input type=button value="Wróć" style="float:left; clear:both" onclick="$.History.go('challenges')">
+</div>
+<div id="layoutBlockedDialog" class='dialog'>
+  Jesteś zapisany do nierozpoczętego konkursu, do którego należy ta plansza.<br>
+  <input type=button value="Wróć" onclick="history.back()">
+</div>
+<div id="infoDialog" class="dialog">
+  <span id="lblInfo"></span><br>
+  <input type=button style="margin-bottom:20px" value="Wróć do menu" onclick="$.History.go(env.getBoardInvoker())">
+</div>
+</body>
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>-->
+
+<!-- STAN GRY -->
+  <script>
+   
+   function AppEnv() {
+     var /*username, password,*/ layout
+     var boardInvoker
+     //this.setPass = function(pass) { password = pass }
+     //this.setUser = function(user) { username = user }
+     this.setBoardInvoker = function(invoker) { boardInvoker = invoker }
+     //this.getUser = function() { return username }
+     //this.getPass = function() { return password }
+     this.getBoardInvoker = function() { return boardInvoker }
+     this.setLayout = function(lay) { layout = lay }
+     this.whenStarted = function() { return layout['started'] }
+   }
+    
+    function Timer(timerDiva) {
+      var timerDiv = timerDiva
+      var currentTime = 0
+      var layoutInfo
+      var timerCron
+      
+      tick = function() {
+        currentTime++
+        $('#lblTimer').html(secsToString(currentTime));
+      }
+      
+      // Ustawiamy informację o rozpoczęciu podejścia
+      // 
+      this.set = function(layout) {
+        layoutInfo = layout
+        loginfo('set:')
+        window.clearInterval(timerCron)
+        loginfo(layoutInfo)
+        if(layoutInfo['duration'] != 0) {
+          $('#lblAttemptText').html('Rozwiązałeś tę łamigłówkę w:')
+          $('#lblTimer').html(secsToString(layoutInfo['duration']))
+        } else {
+          currentTime = Math.floor(new Date().getTime()/1000) - layoutInfo['started']
+          $('#lblAttemptText').html('Twoje podejście trwa:')
+          timerCron = window.setInterval(tick, 1000)
+        }
+      }
+      
+      // Pauzujemy odliczanie (cały czas wyświetlone)
+      this.pause = function() {
+        window.clearInterval(timerCron)
+      }
+      
+      // Zatrzymanie (div czyszczony)
+      this.stop = function() {
+        $(timerDiv).html(null)
+        window.clearInterval(timerCron)
+      }
+      
+      $(timerDiv).html('<span id="lblAttemptText"></span><br><span id="lblTimer"></div>')
+    }
+    
+    function AJAXget(url, callback) {
+      $.ajax({
+        url: url,
+        success: callback,
+        cache: false,
+        type: 'GET'
+      });
+    }
+
+    function AJAXpost(url, postData, callback) {
+      $.ajax({
+        url: url,
+        data: postData,
+        success: callback,
+        cache: false,
+        type: 'POST'
+      });
+    }
+    
+    function postSolution(layout, fields) {
+      loginfo("Wysyłamy!")
+      victoryMsgs = ['Gratulacje, poprawne rozwiązanie',
+                     'No, najwyższy czas',
+                     'To akurat było proste',
+                     'Mistrz!',
+                     'Nieźle, może jeszcze jedna łamigłówka?']
+      //loginfo(JSON.stringify(fields))
+      var url = '/ws/finish' 
+      var data = 'layout_id=' + layout.id + '&solution='+ JSON.stringify(fields)
+      loginfo(url)
+      AJAXpost(url, data, function(response){
+        loginfo(response)
+        if(response == 'INVALID REQUEST' || response =='BADAUTH') {
+          var msg='Auć. Błąd.'
+        } else var msg = victoryMsgs[Math.floor(Math.random()*victoryMsgs.length)]
+        setInfo(msg)
+        $.History.go('info')
+      })
+    }
+    
+    function submitChallenge() {
+      var start, finish, name, layouts
+      start = toTimestamp($('#chlStartDate').datetimepicker('getDate'))
+      //timestamp = $('#startDate').datetimepicker('getDate').getTime()/1000
+      finish = toTimestamp($('#chlFinishDate').datetimepicker('getDate'))
+      if (start >= finish) {
+        fatal('złe daty chelendża')
+        $('#lblSubmitChallengeError').html('Podałeś złe daty')
+        return
+      }
+      if (start < toTimestamp(new Date()))
+        start = toTimestamp(new Date())
+      name = $('#chlName').val()
+      if (name == '')
+        fatal('pusta nazwa chl')
+      var fields = $('#newChallengeForm').serializeArray()
+      var layouts = []
+      for(f in fields) {
+        if(fields[f].name == 'chlLayouts') {
+          layouts.push(fields[f].value)
+        }
+      }
+      var url = "/ws/initchallenge?start=" + start + "&finish=" + finish + "&name=" + name + "&layouts=" + JSON.stringify(layouts)
+      loginfo("tworzę konkurs: " + url)
+      AJAXget(url, function(response) {
+        //czyścimy
+        $('#chlName').val('')
+        $('#chlStartDate').val('')
+        $('#chlFinishDate').val('')
+        $.History.go('challenges')
+      })
+    }
+    
+    function joinChallenge(id) {
+      AJAXget('/ws/joinchallenge/' + id, function(response) {
+        
+      })
+      $.History.go('#challenges')
+    }
+    
+    function doLogin() {
+      var user = $('#user').val()
+      var pass = $('#pass').val()
+      AJAXget('/ws/login?user=' + user + '&pass=' + pass, function(response){
+        if(response == 'OK') {
+          $('#lblLogin').html(user)
+          $('#loginInfo').show()
+          $('#user').val('')
+          $('#pass').val('')
+          $.History.go('start')
+        }
+        if(response == 'BADAUTH') {
+          $('#lblBadauth').html('Złe dane')
+        }
+      })
+    }
+    
+    function doLogout() {
+      AJAXget('/ws/logout', function(response){
+        $('#loginInfo').hide()
+        $.History.go('#login')
+      })
+    }
+    
+    function setInfo(msg) {
+      $('#lblInfo').html(msg)
+    }
+    
+    function doRegistration() {
+      var user = $('#userReg').val()
+      var pass = $('#passReg').val()
+      AJAXget('/ws/newplayer?user=' + user + '&pass=' + pass, function(response){
+        if(response == 'OK') {
+          toggleLoginDialog()
+          toggleMenuDialog()
+        }
+        if(response == 'ERR: OCCUPIED') {
+          $('#lblOccupied').html('Login jest już zajęty')
+        }
+      })
+    }
+    
+    function checkLoginAvailability(event) {
+      loginfo(this)
+      AJAXget('/ws/inuse/'+$('#userReg').val(), function(response){
+        loginfo(response)
+        if(response == 'FREE') {
+          $('#lblOccupied').html('')
+        }
+        if(response == 'OCCUPIED') {
+          $('#lblOccupied').html('Login jest już zajęty')
+        }
+      })
+    }
+    
+    function tabLinksRegister() {
+      $('li.tab > a').click(function(ev) {
+        ev.preventDefault()
+        $('.tabcontent').hide()
+        loginfo(this.getAttribute('href'))
+        $('li.tab').removeClass('activeTab')
+        $(this).parent().addClass('activeTab')
+        $(this.getAttribute('href')).show()
+      })
+    }
+    
+    function layoutLoadedCallback(response) {
+      if(response == 'BADAUTH') {
+          $('#lblBadauth').html('Złe dane')
+        } else
+          if(response == "INVALID PARAMETERS") fatal('IVALPARAMS przy pobieraniu planszy') 
+          else
+            if(response == "NOTALLOWED") {
+              // wyświetlamy info, że gracz bierze udział w nierozpoczętym konkursie z tą planszą
+              $.History.go('#layoutBlocked')
+            } else {
+              var layout = evalJSON(response)
+              board.loadLayout(layout)
+              timer.set(layout)
+              $.History.go('#board')
+            }
+    }
+    
+    function getRandom() {
+      AJAXget('/ws/getrandomlayout', layoutLoadedCallback)
+    }
+    
+    function getLayout(layout_id, invoker) {
+      env.setBoardInvoker(invoker)
+      AJAXget('/ws/getlayout/' + layout_id, layoutLoadedCallback)
+    }
+    
+    function refreshPlayerRanking() {
+      var tab = $('#playerRanking')
+      tab.html("<img width=100 height=100 src=http://hero.epa.gov/images/ajax_loader_large.gif>");
+      AJAXget('/ws/ranking', function(response) {
+        loginfo(response)
+        response = evalJSON(response)
+        var ranking = "<tr class='headerRow'><td>Miejsce</td><td>Gracz</td><td>Rozwiązał</td></tr>"
+        for(var i = 0; response.hasOwnProperty(i); ++i) {
+          ranking += '<tr><td>'+(parseInt(i)+1)+'</td><td><a href=javascript:togglePlayerInfoDialog("'+response[i]['name']+'")>'+response[i]['name']+'</a></td><td>'+response[i].solved + '</td></tr>'
+        }
+        tab.html(ranking)
+      })
+    }
+
+    function refreshLayoutList() {
+$('#officialLayoutList').html("<img width=100 height=100 src=http://hero.epa.gov/images/ajax_loader_large.gif>")
+      AJAXget('/ws/officialLayoutlist', function(response){
+        if(response == 'BADAUTH') {
+          
+        } else
+          if(response == "INVALID PARAMETERS") fatal('IVALPARAMS przy getRandom') 
+          else {
+            var list = evalJSON(response)
+            console.log(list)
+            layoutTable = createLayoutsTable(list)
+            $('#officialLayoutList').html(layoutTable)
+          }
+      });
+$('#userLayoutList').html("<img width=100 height=100 src=http://hero.epa.gov/images/ajax_loader_large.gif>")
+      AJAXget('/ws/userLayoutlist', function(response){
+        if(response == 'BADAUTH') {
+          
+        } else
+          if(response == "INVALID PARAMETERS") fatal('IVALPARAMS przy getRandom') 
+          else {
+            var list = evalJSON(response)
+            console.log(list)
+            layoutTable = createLayoutsTable(list)
+            $('#userLayoutList').html(layoutTable)
+          }
+      });
+    }
+
+    function createLayoutsTable(layoutList) {
+        var layoutTable = '<tr class="headerRow"><td>Plansza</td><td>Rozwiązano</td><td>Rekord</td><td>Dodana</td></tr>'
+            for(var i = 0; layoutList.hasOwnProperty(i); ++i) {
+              data = new Date(layoutList[i]['added']*1000)
+              layoutTable += '<tr><td><span style="margin-bottom:5px; display:block;">' + (layoutList[i]['duration'] != 0 ? '<img title="rozwiązałeś" src="http://www.networkedmediatank.com/images/solved.png">' : '') + '<a href="javascript:getLayout('+layoutList[i]['id']+', \'#layouts\')">   # '+layoutList[i]['id']+'</a></span>'+
+                            '<small>Autor: <a href=javascript:togglePlayerInfoDialog("'+layoutList[i]['author']+'")>' + layoutList[i]['author'] + '</a><small></td>' +
+                            '<td>' + layoutList[i]['solved'] + '/' + layoutList[i]['attempted'] + '</td>' + 
+                            '<td>'+ secsToString(layoutList[i]['besttime']) + '</td>' +
+                            '<td>'+formatDate(data)+'</td></tr>'
+            }
+      return layoutTable;
+    }
+    
+    function refreshMyChallengesList() {
+      AJAXget('/ws/mychallenges', function(response){
+        if(response == 'BADAUTH') {
+          
+        } else
+          if(response == "INVALID PARAMETERS") fatal('IVALPARAMS przy getRandom') 
+          else {
+            var list = evalJSON(response)
+            console.log(list)
+            var challengeList = '<tr class="headerRow"><td></td><td></td><td>Zaczyna się</td><td>Kończy się</td><td>Gracze</td></tr>'
+            for(var i in list) {
+              data = new Date(list[i]['added']*1000)
+              
+              challengeList += '<tr><td><img style="width:16px; height:16px" src="/s/images/'
+              if (fromTimestamp(list[i]['finish']) < new Date())
+                challengeList += 'finished.png">'
+              else
+                if (fromTimestamp(list[i]['start']) < new Date())
+                  challengeList += 'runner.png">'
+                else
+                  challengeList += 'timer.gif">'
+              challengeList += '</td><td><a href=javascript:toggleChallengeInfoDialog('+list[i]['id']+')>'+list[i]['name']+'</a><br>'+
+                            '<small>Autor: <a href=javascript:togglePlayerInfoDialog("'+list[i]['author']+'")>' + list[i]['author'] + '</a><small></td>' +
+                            '<td class="date">' + formatDate(fromTimestamp(list[i]['start'])) + '</td>' + 
+                            '<td class="date">'+ formatDate(fromTimestamp(list[i]['finish'])) + '</td>' +
+                            '<td>'+list[i]['usercount']+'</td></tr>'
+            }
+            $('#myChallengesList').html(challengeList)
+          }
+      })
+    }
+    
+    function refreshChallengeList() {
+      AJAXget('/ws/challengelist', function(response){
+        if(response == 'BADAUTH') {
+          
+        } else
+          if(response == "INVALID PARAMETERS") fatal('IVALPARAMS przy getRandom') 
+          else {
+            var list = evalJSON(response)
+            console.log(list)
+            var challengeList = '<tr class="headerRow"><td></td><td></td><td>Zaczyna się</td><td>Kończy się</td><td>Gracze</td></tr>'
+            for(var i in list) {
+              data = new Date(list[i]['added']*1000)
+              
+              challengeList += '<tr style="border-top:1px solid black"><td><input type="button" value="Dołącz" '+ (list[i]['allowed'] ? '' : 'disabled title="Nie możesz wziąć udziału w tym konkursie."') + ' onclick="joinChallenge(' + list[i]['id'] + ')"></td><td><a href=javascript:toggleChallengeInfoDialog('+list[i]['id']+')>'+list[i]['name']+'</a><br>'+
+                            '<small>Autor: <a href=javascript:togglePlayerInfoDialog("'+list[i]['author']+'")>' + list[i]['author'] + '</a><small></td>' +
+                            '<td class="date">' + formatDate(fromTimestamp(list[i]['start'])) + '</td>' + 
+                            '<td class="date">'+ formatDate(fromTimestamp(list[i]['finish'])) + '</td>' +
+                            '<td>'+list[i]['usercount']+'</td></tr>'
+            }
+            $('#challengesList').html(challengeList)
+          }
+      })
+    }
+    
+    function postLayout(layout) {
+      loginfo('/ws/getrandomlayout/?layoutdesc=' + JSON.stringify(layout))
+      AJAXget('/ws/addlayout/?layoutdesc=' + JSON.stringify(layout), function(response) {
+        loginfo(response)
+        toggleHalfCover()
+        toggleInfoDialog('Plansza dodana')
+      })
+    }
+    
+    // ONREADY
+    $(function() {
+      //$('.dialog').prepend('<div style="text-align:left; display:inline-block"><img style="padding:10px" src="/s/images/logobig.png"></div>')
+      $.History.go('login')
+      AJAXget('/ws/whoami', function(response) {
+        if(response != "BADAUTH") {
+          $('#lblLogin').html(response)
+          $('#loginInfo').show()
+          $('#user').val('')
+          $('#pass').val('')
+          $.History.go('start')
+        }
+      })
+      
+      $('#logForm').submit(function(e) {
+        e.preventDefault()
+        doLogin()
+      })
+      env = new AppEnv()
+      timer = new Timer($('#timer')[0])
+      board = new numberlinkBoard($("#board")[0], postSolution)
+      editor = new numberlinkEditor($('#editor')[0], postLayout)
+      $('#editor').hide()
+      $('input[type=button]').addClass('btn')
+      //$('.tabcontent').hide()
+      //tabLinksRegister()
+      //toggleCover()
+      //toggleLoginDialog()
+      $('#userReg').keyup(checkLoginAvailability)
+      //refreshPlayerRanking()
+      //rankingCron = window.setTimeout(refreshPlayerRanking, 20000)
+      //layoutsCron = window.setTimeout(refreshLayoutList, 20000)
+    });
+  
+  /* jQuery.ajax({
+         url:    'http://example.com/catalog/create/' 
+                  + targetNode.id 
+                  + '?name=' 
+                  + encode(to.inp[0].value),
+         success: function(result) {
+                      if(result.isOk == false)
+                          alert(result.message);
+                  },
+         async:   false
+    }); */
+
+  </script>
+  
+  </html>

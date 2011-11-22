@@ -1,0 +1,175 @@
+  
+  
+  
+  body { font-family:tahoma, helvetica, sans-serif; 
+    text-align:center; overflow:hide;
+  }
+  
+  
+  
+  #userLayoutList, #officialLayoutList, #playerRanking, #challenges, #challengeInfoDialog {
+    border-collapse:collapse;
+  }
+  
+  #userLayoutList td, #officialLayoutList td, #playerRanking td, #challenges td, #challengeInfoDialog td {
+    border:1px solid #8B7355;
+    padding:5px;
+  }
+  
+  .headerRow {
+    font-weight:bold;
+    font-size:small;
+  }
+  
+  li.tab a { color:black; hover:white; text-decoration:none;}
+  li.tab a:hover { color:white; }
+  .boardsquare { border: 1px solid gray; padding:0px; }
+  .canv { width: 50px; height: 50px; }
+  .hl { background-color: #FFFF66; }
+  .board { border: 5px solid darkorange; border-collapse:collapse; padding:0px; z-index:3}
+  div#menu { padding: 10px; }
+  div#timer { padding: 10px; font-size: 20px; font-weight: bold;}
+  div#loginInfo { position:absolute; top:0; right:0; z-index:11000; display:none}
+  span#lblLogin { margin-right: 5px}
+  div#board { margin:auto; display:inline-block; padding: 10px; }
+  div#editor { margin:auto; display:inline-block;}
+  div#main { text-align:center; }
+  
+  div#cover {
+    position:absolute;
+    width:100%;
+    height:100%;
+    left:0px;
+    top:0px;
+    z-index:9000;
+    background-color:#FEF5CA;
+    display:none;
+  }
+  
+  div#halfcover {
+    position:absolute;
+    left:0px;
+    top:0px;
+    width:100%;
+    height:100%;
+    z-index:9000;
+    background-color:#000;
+    opacity:0.5;
+    display:none;
+  }
+  
+  div.dialog {
+    /*text-align:left;*/
+    position:absolute;
+    margin:auto;
+    top:20%;
+    left:10%;
+    min-width:80%;
+    height:70%;
+    max-height:70%;
+    min-height:20%;
+    /*height:200px;*/
+    display:none;
+    z-index:9002;
+    padding:0px;
+    overflow:auto;
+    background-color:#EEC591;
+    border-radius: 3px;
+  }
+  
+  .badauth {
+    color:red;
+  }
+  
+  ul.tabs {
+    float:left;
+    list-style:none;
+    padding:0;
+    margin:0;
+    margin-left:1%;
+    width:19%;
+    border-bottom:1px none black;
+  }
+  
+  li.tab {
+    text-align:center;
+    margin-top:0px;
+    background-color:#8B7355;
+    /*border-top:1px solid black;
+    border-bottom:1px solid black;*/
+    border-collapse:collapse;
+    padding-bottom:5px;
+    padding-top:5px;
+    margin-bottom:10px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+  }
+  
+  .activeTab {
+    background-color:#CDAA7D !important;
+    border-top:none !important;
+    border-bottom:none !important;
+    font-weight:bold;
+    color:black;
+  }
+  
+  .tabcontent {
+    /*float:right*/
+    /*position:relative;*/
+    background-color:#CDAA7D;
+    text-align:center;
+    display:block;
+    /*clear:right;*/
+    padding:0;
+    width:80%;
+    height:100%;
+    /*max-height:5%;*/
+    overflow:auto;
+  }
+  
+  div#playerInfoDialog {
+    border:1px dashed black
+  }
+  
+  div#logo {
+    position:absolute;
+    top:5%;
+    left:5%;
+    z-index:9001;
+    padding:20px;
+    padding-right:80px;
+    background-color:#FEF5CA;
+    
+  }
+  
+  #infoDialog {
+    padding-top:20px;
+  }
+  
+  div#attemptInfo {
+    position:absolute;
+    z-index:2;
+    top:0;
+    left:0;
+  }
+  
+  .txtbox {
+    border: 1px solid #8B7355;
+  }
+  
+  .btn {
+    background-color: #8B7355;
+    border: 2px solid #463A2A;
+    border-radius: 3px;
+    padding:5px
+  }
+  
+  .date {
+    font-size:small;
+  }
+
+.ui-timepicker-div .ui-widget-header{ margin-bottom: 8px; }
+.ui-timepicker-div dl{ text-align: left; }
+.ui-timepicker-div dl dt{ height: 25px; }
+.ui-timepicker-div dl dd{ margin: -25px 0 10px 65px; }
+.ui-timepicker-div td { font-size: 90%; }
